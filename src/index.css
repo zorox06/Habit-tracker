@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Dark theme base colors - ONLY BLACK AND BLACKISH COLORS */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 0 0% 20%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 90%;
+
+    --muted: 0 0% 8%;
+    --muted-foreground: 0 0% 60%;
+
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 0% 30%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 12%;
+    --input: 0 0% 12%;
+    --ring: 0 0% 25%;
+
+    --radius: 0.75rem;
+
+    /* Habit tracker specific colors - MEANINGFUL COLORS FOR ANALYTICS */
+    --progress-bg: 0 0% 12%;
+    --progress-cyan: 195 100% 60%;
+    --progress-green: 142 71% 55%;
+    --progress-orange: 38 92% 60%;
+    --progress-purple: 271 81% 66%;
+    
+    /* Analytics and Chart Colors */
+    --chart-blue: 210 100% 60%;
+    --chart-green: 142 71% 55%;
+    --chart-orange: 38 92% 60%;
+    --chart-red: 0 84% 60%;
+    --chart-purple: 271 81% 66%;
+    --chart-cyan: 195 100% 60%;
+    --chart-yellow: 48 96% 53%;
+    --chart-pink: 330 81% 60%;
+    
+    /* Success, Warning, Error Colors */
+    --success: 142 71% 55%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 60%;
+    --warning-foreground: 0 0% 100%;
+    --error: 0 84% 60%;
+    --error-foreground: 0 0% 100%;
+    --info: 195 100% 60%;
+    --info-foreground: 0 0% 100%;
+    
+    /* Glassmorphism effects - ONLY BLACK AND BLACKISH COLORS */
+    --glass-bg: 0 0% 5% / 0.8;
+    --glass-border: 0 0% 100% / 0.1;
+    
+    /* Gradients - ONLY BLACK AND BLACKISH COLORS */
+    --gradient-primary: linear-gradient(135deg, hsl(0 0% 20%), hsl(0 0% 15%));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 5% / 0.8), hsl(0 0% 8% / 0.6));
+    
+    /* Shadows - ONLY BLACK AND BLACKISH COLORS */
+    --shadow-glow: 0 0 40px hsl(0 0% 0% / 0.3);
+    --shadow-card: 0 8px 32px hsl(0 0% 0% / 0.5);
+
+    --sidebar-background: 0 0% 5%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 0 0% 10%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 8%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 0 0% 12%;
+    --sidebar-ring: 0 0% 25%;
+  }
+
+  .dark {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 0 0% 20%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 8%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 0% 30%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 12%;
+    --input: 0 0% 12%;
+    --ring: 0 0% 25%;
+    
+    --sidebar-background: 0 0% 5%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 0 0% 15%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 8%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 12%;
+    --sidebar-ring: 0 0% 25%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
