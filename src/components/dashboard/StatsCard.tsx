@@ -20,7 +20,7 @@ export const StatsCard = ({
 }: StatsCardProps) => {
   return (
     <div className={cn(
-      "p-6 rounded-xl border border-glass-border shadow-card transition-all duration-300 hover:shadow-glow",
+      "p-6 rounded-xl border border-glass-border shadow-card transition-all duration-300 hover:shadow-glow motion-safe:hover:translate-y-[-2px]",
       gradient 
         ? "bg-gradient-card backdrop-blur" 
         : "bg-card/50 backdrop-blur",
@@ -28,7 +28,7 @@ export const StatsCard = ({
     )}>
       <div className="flex items-center gap-4">
         <div className={cn(
-          "w-12 h-12 rounded-xl flex items-center justify-center",
+          "w-12 h-12 rounded-xl flex items-center justify-center motion-safe:animate-in",
           gradient 
             ? "bg-gradient-primary shadow-glow" 
             : "bg-secondary/50"

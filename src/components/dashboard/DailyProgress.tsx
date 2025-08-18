@@ -48,7 +48,7 @@ export const DailyProgress = ({
   };
 
   return (
-    <div className="p-6 rounded-xl bg-gradient-card backdrop-blur border border-glass-border shadow-card hover:shadow-glow transition-all duration-300">
+    <div className="p-6 rounded-xl bg-gradient-card backdrop-blur border border-glass-border shadow-card hover:shadow-glow transition-all duration-300 motion-safe:hover:translate-y-[-2px]">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold text-foreground">Today's Progress</h2>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -60,15 +60,15 @@ export const DailyProgress = ({
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="text-center p-3 rounded-lg bg-secondary/20 border border-glass-border">
+            <div className="text-center p-3 rounded-lg bg-secondary/20 border border-glass-border transition-all duration-300 motion-safe:hover:scale-[1.02]">
               <div className="text-2xl font-bold text-foreground">{currentTime}</div>
               <div className="text-xs text-muted-foreground">Time Spent</div>
             </div>
-            <div className="text-center p-3 rounded-lg bg-secondary/20 border border-glass-border">
+            <div className="text-center p-3 rounded-lg bg-secondary/20 border border-glass-border transition-all duration-300 motion-safe:hover:scale-[1.02]">
               <div className="text-2xl font-bold text-foreground">{totalTime}</div>
               <div className="text-xs text-muted-foreground">Target Time</div>
             </div>
-            <div className="text-center p-3 rounded-lg bg-secondary/20 border border-glass-border">
+            <div className="text-center p-3 rounded-lg bg-secondary/20 border border-glass-border transition-all duration-300 motion-safe:hover:scale-[1.02]">
               <div className="text-2xl font-bold text-foreground">{activeHabits}</div>
               <div className="text-xs text-muted-foreground">Active Habits</div>
             </div>

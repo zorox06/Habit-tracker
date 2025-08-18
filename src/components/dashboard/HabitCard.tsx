@@ -198,10 +198,10 @@ export const HabitCard = ({
 
   return (
     <>
-      <div className="p-6 rounded-xl bg-gradient-card backdrop-blur border border-glass-border shadow-card hover:shadow-glow transition-all duration-300">
+      <div className="p-6 rounded-xl bg-gradient-card backdrop-blur border border-glass-border shadow-card hover:shadow-glow transition-all duration-300 motion-safe:hover:translate-y-[-2px]">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-lg bg-${colorMap[color]}/20 flex items-center justify-center`}>
+            <div className={`w-10 h-10 rounded-lg bg-${colorMap[color]}/20 flex items-center justify-center transition-transform duration-300 motion-safe:group-hover:scale-110`}>
               {icon || <div className={`w-4 h-4 rounded-full bg-${colorMap[color]}`} />}
             </div>
             <div>
