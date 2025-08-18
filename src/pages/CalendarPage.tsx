@@ -8,12 +8,20 @@ import { useToast } from "@/hooks/use-toast";
 import { habitService } from "@/services/habitService";
 import { formatMinutes, calculateProgress } from "@/lib/utils";
 
+type Task = {
+  id: string;
+  text: string;
+  completed: boolean;
+  priority: 'low' | 'medium' | 'high';
+  date: string;
+};
+
 const CalendarPage = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [dailyActivity, setDailyActivity] = useState<any[]>([]);
   const [isLoadingActivity, setIsLoadingActivity] = useState(false);
-  const [tasks, setTasks] = useState<Record<string, Array<{ id: string; text: string; completed: boolean; priority: 'low' | 'medium' | 'high'; date: string }>>>({});
+  const [tasks, setTasks] = useState<Record<string, Task[]>>({});
   const [newTask, setNewTask] = useState('');
   const [newTaskPriority, setNewTaskPriority] = useState<'low' | 'medium' | 'high'>('medium');
   const [currentTaskDate, setCurrentTaskDate] = useState(new Date().toISOString().split('T')[0]);
@@ -23,6 +31,27 @@ const CalendarPage = () => {
   const clearTodaysData = useClearTodaysData();
   const { data: dailyStats } = useDailyStats();
   const { data: habits = [] } = useHabits();
+
+  // Persist tasks locally so they survive tab changes and reloads
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('calendarTasks');
+      if (saved) {
+        const parsed = JSON.parse(saved) as Record<string, Task[]>;
+        setTasks(parsed);
+      }
+    } catch (error) {
+      console.error('Failed to load saved tasks from localStorage', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('calendarTasks', JSON.stringify(tasks));
+    } catch (error) {
+      console.error('Failed to save tasks to localStorage', error);
+    }
+  }, [tasks]);
   
   const today = new Date();
   const currentMonth = currentDate.getMonth();
