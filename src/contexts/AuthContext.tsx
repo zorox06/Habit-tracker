@@ -36,6 +36,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log("Supabase Auth Event:", event, session ? "Session Exists" : "No Session");
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -43,7 +44,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     );
 
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      console.log("Initial getSession:", session ? "Found session locally or in URL" : "No local session", error || "");
+      if (error) {
+        console.error("Supabase getSession Error:", error);
+      }
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
