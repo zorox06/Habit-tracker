@@ -10,6 +10,7 @@ export interface Habit {
   status: 'active' | 'paused' | 'completed' | 'archived';
   color: string;
   icon?: string;
+  room_id?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -39,12 +40,19 @@ export interface HabitSession {
 
 export const habitService = {
   // Habits CRUD
-  async getHabits(): Promise<Habit[]> {
-    const { data, error } = await supabase
+  async getHabits(roomId?: string): Promise<Habit[]> {
+    let query = supabase
       .from('habits')
       .select('*')
-      .eq('status', 'active')
-      .order('created_at', { ascending: false });
+      .eq('status', 'active');
+
+    if (roomId) {
+      query = query.eq('room_id', roomId);
+    } else {
+      query = query.is('room_id', null); // Only personal habits
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
 
     if (error) throw error;
     return data || [];

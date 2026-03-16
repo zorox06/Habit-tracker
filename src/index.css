@@ -2,129 +2,99 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/*
+  Design System — Stealth Dark Theme
+  Near-black neutrals with very subtle cool tint.
+  OKLCH color space. No pure black (#000). No pure white (#fff).
+  Habit/chart colors kept vibrant for analytics visibility.
 */
 
 @layer base {
   :root {
-    /* Dark theme base colors - ONLY BLACK AND BLACKISH COLORS */
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
+    /* ── Stealth Theme with High Contrast Boxes ── */
+    --background: 4% 0 0; /* Almost true black */
+    --foreground: 98% 0 0;
 
-    --card: 0 0% 5%;
-    --card-foreground: 0 0% 100%;
+    --card: 10% 0 0; /* Noticeably lighter than background */
+    --card-foreground: 98% 0 0;
 
-    --popover: 0 0% 5%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 10% 0 0;
+    --popover-foreground: 98% 0 0;
 
-    --primary: 0 0% 20%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 98% 0 0;
+    --primary-foreground: 8% 0 0;
 
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 0 0% 90%;
+    --secondary: 15% 0 0;
+    --secondary-foreground: 85% 0 0;
 
-    --muted: 0 0% 8%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 15% 0 0;
+    --muted-foreground: 60% 0 0;
 
-    --accent: 0 0% 15%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 18% 0 0;
+    --accent-foreground: 98% 0 0;
 
-    --destructive: 0 0% 30%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 55% 0.22 25;
+    --destructive-foreground: 98% 0 0;
 
-    --border: 0 0% 12%;
-    --input: 0 0% 12%;
-    --ring: 0 0% 25%;
+    /* Highly visible borders for clear box grouping */
+    --border: 28% 0 0; 
+    --input: 28% 0 0;
+    --ring: 98% 0 0;
 
-    --radius: 0.75rem;
+    --radius: 0.625rem;
 
-    /* Habit tracker specific colors - MEANINGFUL COLORS FOR ANALYTICS */
-    --progress-bg: 0 0% 12%;
-    --progress-cyan: 195 100% 60%;
-    --progress-green: 142 71% 55%;
-    --progress-orange: 38 92% 60%;
-    --progress-purple: 271 81% 66%;
-    
-    /* Analytics and Chart Colors */
-    --chart-blue: 210 100% 60%;
-    --chart-green: 142 71% 55%;
-    --chart-orange: 38 92% 60%;
-    --chart-red: 0 84% 60%;
-    --chart-purple: 271 81% 66%;
-    --chart-cyan: 195 100% 60%;
-    --chart-yellow: 48 96% 53%;
-    --chart-pink: 330 81% 60%;
-    
-    /* Success, Warning, Error Colors */
-    --success: 142 71% 55%;
-    --success-foreground: 0 0% 100%;
-    --warning: 38 92% 60%;
-    --warning-foreground: 0 0% 100%;
-    --error: 0 84% 60%;
-    --error-foreground: 0 0% 100%;
-    --info: 195 100% 60%;
-    --info-foreground: 0 0% 100%;
-    
-    /* Glassmorphism effects - ONLY BLACK AND BLACKISH COLORS */
-    --glass-bg: 0 0% 5% / 0.8;
-    --glass-border: 0 0% 100% / 0.1;
-    
-    /* Gradients - ONLY BLACK AND BLACKISH COLORS */
-    --gradient-primary: linear-gradient(135deg, hsl(0 0% 20%), hsl(0 0% 15%));
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 5% / 0.8), hsl(0 0% 8% / 0.6));
-    
-    /* Shadows - ONLY BLACK AND BLACKISH COLORS */
-    --shadow-glow: 0 0 40px hsl(0 0% 0% / 0.3);
-    --shadow-card: 0 8px 32px hsl(0 0% 0% / 0.5);
+    /* ── Progress colors (KEPT VIBRANT for analytics) ── */
+    --progress-bg: 16% 0.005 250;
+    --progress-cyan: 75% 0.12 195;
+    --progress-green: 70% 0.16 150;
+    --progress-orange: 75% 0.16 60;
+    --progress-purple: 65% 0.18 290;
 
-    --sidebar-background: 0 0% 5%;
-    --sidebar-foreground: 0 0% 90%;
-    --sidebar-primary: 0 0% 10%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 8%;
-    --sidebar-accent-foreground: 0 0% 90%;
-    --sidebar-border: 0 0% 12%;
-    --sidebar-ring: 0 0% 25%;
+    /* ── Chart / analytics colors (KEPT VIBRANT) ── */
+    --chart-blue: 65% 0.15 250;
+    --chart-green: 70% 0.16 150;
+    --chart-orange: 75% 0.16 60;
+    --chart-red: 60% 0.22 25;
+    --chart-purple: 65% 0.18 290;
+    --chart-cyan: 75% 0.12 195;
+    --chart-yellow: 82% 0.16 90;
+    --chart-pink: 65% 0.16 350;
+
+    /* ── Semantic ── */
+    --success: 70% 0.16 150;
+    --success-foreground: 10% 0.02 150;
+    --warning: 78% 0.14 75;
+    --warning-foreground: 10% 0.02 75;
+    --error: 55% 0.22 25;
+    --error-foreground: 95% 0.005 250;
+    --info: 65% 0.12 240;
+    --info-foreground: 10% 0.02 240;
+
+    /* ── Surfaces (cards and internal boxes) ── */
+    --surface-1: 10% 0 0;
+    --surface-2: 15% 0 0;
+    --surface-3: 20% 0 0;
+
+    /* ── Sidebar ── */
+    --sidebar-background: 8% 0 0; /* Slightly darker than cards, lighter than background */
+    --sidebar-foreground: 75% 0 0;
+    --sidebar-primary: 98% 0 0;
+    --sidebar-primary-foreground: 8% 0 0;
+    --sidebar-accent: 15% 0 0;
+    --sidebar-accent-foreground: 85% 0 0;
+    --sidebar-border: 28% 0 0;
+    --sidebar-ring: 98% 0 0;
+
+    /* ── Motion tokens ── */
+    --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --duration-fast: 150ms;
+    --duration-normal: 250ms;
+    --duration-slow: 400ms;
   }
 
   .dark {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
-
-    --card: 0 0% 5%;
-    --card-foreground: 0 0% 100%;
-
-    --popover: 0 0% 5%;
-    --popover-foreground: 0 0% 100%;
-
-    --primary: 0 0% 20%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 0 0% 8%;
-    --muted-foreground: 0 0% 65%;
-
-    --accent: 0 0% 15%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 0% 30%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 0 0% 12%;
-    --input: 0 0% 12%;
-    --ring: 0 0% 25%;
-    
-    --sidebar-background: 0 0% 5%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 0 0% 15%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 8%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 12%;
-    --sidebar-ring: 0 0% 25%;
+    /* identical to :root — single-theme app */
   }
 }
 
@@ -134,6 +104,68 @@ All colors MUST be HSL.
   }
 
   body {
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+    font-weight: 400;
+    font-kerning: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     @apply bg-background text-foreground;
+    line-height: 1.6;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ── Entrance animations ── */
+@layer utilities {
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .animate-fade-up {
+    animation: fade-up var(--duration-slow) var(--ease-out-quart) both;
+  }
+
+  .animate-fade-in {
+    animation: fade-in var(--duration-normal) var(--ease-out-quart) both;
+  }
+
+  .stagger-children > * {
+    animation: fade-up var(--duration-slow) var(--ease-out-quart) both;
+  }
+  .stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+  .stagger-children > *:nth-child(2) { animation-delay: 60ms; }
+  .stagger-children > *:nth-child(3) { animation-delay: 120ms; }
+  .stagger-children > *:nth-child(4) { animation-delay: 180ms; }
+  .stagger-children > *:nth-child(5) { animation-delay: 240ms; }
+  .stagger-children > *:nth-child(6) { animation-delay: 300ms; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-fade-in,
+  .stagger-children > * {
+    animation: none !important;
   }
 }

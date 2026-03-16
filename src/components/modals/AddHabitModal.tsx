@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 interface AddHabitModalProps {
   isOpen: boolean;
   onClose: () => void;
+  roomId?: string; // If provided, the habit belongs to this room
 }
 
 const habitCategories = [
@@ -25,30 +26,30 @@ const habitCategories = [
 ];
 
 const habitColors = [
-  { value: '#3B82F6', label: 'Blue', preview: '#3B82F6' },
-  { value: '#10B981', label: 'Green', preview: '#10B981' },
-  { value: '#6B7280', label: 'Gray', preview: '#6B7280' },
-  { value: '#8B5CF6', label: 'Violet', preview: '#8B5CF6' },
-  { value: '#F43F5E', label: 'Rose', preview: '#F43F5E' },
-  { value: '#06B6D4', label: 'Cyan', preview: '#06B6D4' },
-  { value: '#F97316', label: 'Orange', preview: '#F97316' },
-  { value: '#EC4899', label: 'Pink', preview: '#EC4899' },
-  { value: '#84CC16', label: 'Lime', preview: '#84CC16' },
-  { value: '#6366F1', label: 'Indigo', preview: '#6366F1' },
-  { value: '#EF4444', label: 'Red', preview: '#EF4444' },
-  { value: '#22D3EE', label: 'Sky', preview: '#22D3EE' },
-  { value: '#FBBF24', label: 'Yellow', preview: '#FBBF24' },
-  { value: '#FB7185', label: 'Coral', preview: '#FB7185' },
-  { value: '#8B5A2B', label: 'Brown', preview: '#8B5A2B' }
+  { value: '#6B8ADB', label: 'Blue' },
+  { value: '#5BAD8A', label: 'Green' },
+  { value: '#8A8A8A', label: 'Gray' },
+  { value: '#9B7FD4', label: 'Violet' },
+  { value: '#D47B8A', label: 'Rose' },
+  { value: '#6BADC4', label: 'Teal' },
+  { value: '#D49A47', label: 'Amber' },
+  { value: '#D47B9B', label: 'Pink' },
+  { value: '#8AAD5B', label: 'Lime' },
+  { value: '#7B7FD4', label: 'Indigo' },
+  { value: '#C45B5B', label: 'Red' },
+  { value: '#5BA8C4', label: 'Sky' },
+  { value: '#C4A847', label: 'Gold' },
+  { value: '#C47B7B', label: 'Coral' },
+  { value: '#8B6B47', label: 'Brown' }
 ];
 
-export const AddHabitModal = ({ isOpen, onClose }: AddHabitModalProps) => {
+export const AddHabitModal = ({ isOpen, onClose, roomId }: AddHabitModalProps) => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     category: 'development' as const,
     target_duration_minutes: 60,
-    color: '#3B82F6'
+    color: '#6B8ADB'
   });
 
   const createHabit = useCreateHabit();
@@ -56,31 +57,24 @@ export const AddHabitModal = ({ isOpen, onClose }: AddHabitModalProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!formData.name.trim()) {
-      toast({
-        title: "Name required",
-        description: "Please enter a habit name",
-        variant: "destructive"
-      });
+      toast({ title: "Name required", description: "Please enter a habit name.", variant: "destructive" });
       return;
     }
-
     try {
-      await createHabit.mutateAsync(formData);
-      toast({
-        title: "Habit created!",
-        description: "Your new habit has been added successfully.",
-      });
+      await createHabit.mutateAsync({
+        name: formData.name,
+        description: formData.description,
+        category: formData.category as any,
+        status: 'active',
+        color: formData.color,
+        icon: 'default', // Assuming a default icon if not selected
+        target_duration_minutes: formData.target_duration_minutes,
+        room_id: roomId || null,
+      } as any);
+      toast({ title: "Habit created", description: "Your new habit has been added." });
       onClose();
-      // Reset form
-      setFormData({
-        name: '',
-        description: '',
-        category: 'development',
-        target_duration_minutes: 60,
-        color: '#3B82F6'
-      });
+      setFormData({ name: '', description: '', category: 'development', target_duration_minutes: 60, color: '#6B8ADB' });
     } catch (error) {
       console.error('Error creating habit:', error);
     }
@@ -89,66 +83,59 @@ export const AddHabitModal = ({ isOpen, onClose }: AddHabitModalProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-card border border-glass-border rounded-xl shadow-card w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-glass-border">
-          <h2 className="text-xl font-semibold text-foreground">Add New Habit</h2>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="h-8 w-8 p-0 hover:bg-secondary/50"
-          >
+    <div className="fixed inset-0 bg-background/80 z-50 flex items-center justify-center p-4">
+      <div className="bg-surface-1 border border-border rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto animate-fade-up">
+        <div className="flex items-center justify-between p-5 border-b border-border">
+          <h2 className="text-lg font-display font-semibold text-foreground">Add New Habit</h2>
+          <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0 hover:bg-surface-2">
             <X className="w-4 h-4" />
           </Button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Habit Name *</Label>
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="name" className="text-sm">Habit Name *</Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
               placeholder="e.g., Daily Coding, Morning Exercise"
-              className="bg-secondary/20 border-glass-border"
+              className="bg-surface-2 border-border h-10 text-sm"
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="description" className="text-sm">Description</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
               placeholder="Describe your habit..."
-              className="bg-secondary/20 border-glass-border"
+              className="bg-surface-2 border-border text-sm"
               rows={3}
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="category">Category</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="category" className="text-sm">Category</Label>
             <Select
               value={formData.category}
               onValueChange={(value: any) => setFormData(prev => ({ ...prev, category: value }))}
             >
-              <SelectTrigger className="bg-secondary/20 border-glass-border">
+              <SelectTrigger className="bg-surface-2 border-border h-10 text-sm">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-surface-1 border-border">
                 {habitCategories.map((category) => (
-                  <SelectItem key={category.value} value={category.value}>
-                    {category.label}
-                  </SelectItem>
+                  <SelectItem key={category.value} value={category.value}>{category.label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="duration">Daily Target Duration</Label>
-            <div className="flex gap-2">
+          <div className="space-y-1.5">
+            <Label className="text-sm">Daily Target</Label>
+            <div className="flex gap-2 items-center">
               <Input
                 type="number"
                 min="0"
@@ -158,10 +145,9 @@ export const AddHabitModal = ({ isOpen, onClose }: AddHabitModalProps) => {
                   const minutes = formData.target_duration_minutes % 60;
                   setFormData(prev => ({ ...prev, target_duration_minutes: hours * 60 + minutes }));
                 }}
-                className="bg-secondary/20 border-glass-border"
-                placeholder="0"
+                className="bg-surface-2 border-border h-10 text-sm w-20"
               />
-              <span className="text-muted-foreground self-center">hours</span>
+              <span className="text-sm text-muted-foreground">h</span>
               <Input
                 type="number"
                 min="0"
@@ -172,28 +158,25 @@ export const AddHabitModal = ({ isOpen, onClose }: AddHabitModalProps) => {
                   const hours = Math.floor(formData.target_duration_minutes / 60);
                   setFormData(prev => ({ ...prev, target_duration_minutes: hours * 60 + minutes }));
                 }}
-                className="bg-secondary/20 border-glass-border"
-                placeholder="0"
+                className="bg-surface-2 border-border h-10 text-sm w-20"
               />
-              <span className="text-muted-foreground self-center">minutes</span>
+              <span className="text-sm text-muted-foreground">m</span>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Color Theme</Label>
-            <div className="grid grid-cols-5 gap-3">
+          <div className="space-y-1.5">
+            <Label className="text-sm">Color</Label>
+            <div className="grid grid-cols-5 gap-2.5">
               {habitColors.map((color) => (
                 <button
                   key={color.value}
                   type="button"
                   onClick={() => setFormData(prev => ({ ...prev, color: color.value }))}
-                  className={`
-                    w-10 h-10 rounded-lg border-2 transition-all duration-200 hover:scale-105
-                    ${formData.color === color.value 
-                      ? 'border-primary scale-110 shadow-lg' 
-                      : 'border-glass-border hover:border-primary/50 hover:shadow-md'
-                    }
-                  `}
+                  className={`w-9 h-9 rounded-md transition-all duration-100 ${
+                    formData.color === color.value
+                      ? 'ring-2 ring-primary ring-offset-2 ring-offset-surface-1 scale-110'
+                      : 'hover:scale-105'
+                  }`}
                   style={{ backgroundColor: color.value }}
                   title={color.label}
                 />
@@ -201,19 +184,19 @@ export const AddHabitModal = ({ isOpen, onClose }: AddHabitModalProps) => {
             </div>
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-3 pt-3">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
-              className="flex-1 border-glass-border hover:bg-secondary/50"
+              className="flex-1 border-border hover:bg-surface-2"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={createHabit.isPending}
-              className="flex-1 bg-gradient-primary hover:opacity-90 text-white shadow-glow"
+              className="flex-1 bg-primary text-primary-foreground hover:opacity-90"
             >
               {createHabit.isPending ? (
                 <>

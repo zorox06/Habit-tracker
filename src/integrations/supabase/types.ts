@@ -112,6 +112,7 @@ export type Database = {
           target_duration_minutes: number | null
           updated_at: string
           user_id: string
+          room_id: string | null
         }
         Insert: {
           category?: Database["public"]["Enums"]["habit_category"]
@@ -125,6 +126,7 @@ export type Database = {
           target_duration_minutes?: number | null
           updated_at?: string
           user_id: string
+          room_id?: string | null
         }
         Update: {
           category?: Database["public"]["Enums"]["habit_category"]
@@ -138,8 +140,17 @@ export type Database = {
           target_duration_minutes?: number | null
           updated_at?: string
           user_id?: string
+          room_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "habit_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       profiles: {
         Row: {
@@ -171,6 +182,119 @@ export type Database = {
         }
         Relationships: []
       }
+      rooms: {
+        Row: {
+          id: string
+          name: string
+          code: string
+          owner_id: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          code: string
+          owner_id: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          code?: string
+          owner_id?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rooms_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      room_members: {
+        Row: {
+          room_id: string
+          user_id: string
+          display_name: string
+          role: Database["public"]["Enums"]["room_role"]
+          joined_at: string
+        }
+        Insert: {
+          room_id: string
+          user_id: string
+          display_name: string
+          role?: Database["public"]["Enums"]["room_role"]
+          joined_at?: string
+        }
+        Update: {
+          room_id?: string
+          user_id?: string
+          display_name?: string
+          role?: Database["public"]["Enums"]["room_role"]
+          joined_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_members_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "room_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      room_messages: {
+        Row: {
+          id: string
+          room_id: string
+          user_id: string
+          content: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          room_id: string
+          user_id: string
+          content: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          room_id?: string
+          user_id?: string
+          content?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_messages_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "room_messages_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -189,6 +313,7 @@ export type Database = {
         | "social"
         | "other"
       habit_status: "active" | "paused" | "completed" | "archived"
+      room_role: "owner" | "member"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -327,6 +452,7 @@ export const Constants = {
         "other",
       ],
       habit_status: ["active", "paused", "completed", "archived"],
+      room_role: ["owner", "member"],
     },
   },
 } as const

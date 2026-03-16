@@ -14,23 +14,21 @@ const sizeMap = {
 };
 
 const colorMap = {
-  cyan: "hsl(var(--progress-cyan))",
-  green: "hsl(var(--progress-green))", 
-  orange: "hsl(var(--progress-orange))",
-  purple: "hsl(var(--progress-purple))"
+  cyan: "oklch(var(--progress-cyan))",
+  green: "oklch(var(--progress-green))",
+  orange: "oklch(var(--progress-orange))",
+  purple: "oklch(var(--progress-purple))"
 };
 
-export const CircularProgress = ({ 
-  progress, 
-  color, 
-  size = "md", 
-  showText = true 
+export const CircularProgress = ({
+  progress,
+  color,
+  size = "md",
+  showText = true
 }: CircularProgressProps) => {
   const { size: circleSize, strokeWidth, text } = sizeMap[size];
   const radius = (circleSize - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
-  const strokeDasharray = circumference;
-  // Cap the visual progress at 100% but show actual percentage in text
   const visualProgress = Math.min(100, progress);
   const strokeDashoffset = circumference - (visualProgress / 100) * circumference;
 
@@ -41,16 +39,14 @@ export const CircularProgress = ({
         height={circleSize}
         className="transform -rotate-90"
       >
-        {/* Background circle */}
         <circle
           cx={circleSize / 2}
           cy={circleSize / 2}
           r={radius}
           fill="transparent"
-          stroke="hsl(var(--progress-bg))"
+          stroke="oklch(var(--progress-bg))"
           strokeWidth={strokeWidth}
         />
-        {/* Progress circle */}
         <circle
           cx={circleSize / 2}
           cy={circleSize / 2}
@@ -58,18 +54,16 @@ export const CircularProgress = ({
           fill="transparent"
           stroke={colorMap[color]}
           strokeWidth={strokeWidth}
-          strokeDasharray={strokeDasharray}
+          strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
-          className="transition-all duration-500 ease-out"
-          style={{
-            filter: `drop-shadow(0 0 8px ${colorMap[color]}40)`
-          }}
+          className="transition-all duration-500"
+          style={{ transitionTimingFunction: 'cubic-bezier(0.25, 1, 0.5, 1)' }}
         />
       </svg>
       {showText && (
         <div className={cn(
-          "absolute inset-0 flex items-center justify-center font-bold text-foreground",
+          "absolute inset-0 flex items-center justify-center font-display font-bold text-foreground tabular-nums",
           text
         )}>
           {Math.round(progress)}%

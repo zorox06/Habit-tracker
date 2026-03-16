@@ -10,41 +10,36 @@ interface StatsCardProps {
   className?: string;
 }
 
-export const StatsCard = ({ 
-  title, 
-  value, 
-  subtitle, 
-  icon: Icon, 
+export const StatsCard = ({
+  title,
+  value,
+  subtitle,
+  icon: Icon,
   gradient = false,
-  className 
+  className
 }: StatsCardProps) => {
   return (
     <div className={cn(
-      "p-6 rounded-xl border border-glass-border shadow-card transition-all duration-300 hover:shadow-glow motion-safe:hover:translate-y-[-2px]",
-      gradient 
-        ? "bg-gradient-card backdrop-blur" 
-        : "bg-card/50 backdrop-blur",
+      "p-5 rounded-lg bg-surface-1 border border-border transition-colors duration-150 hover:bg-surface-2",
       className
     )}>
-      <div className="flex items-center gap-4">
+      <div className="flex items-start gap-4">
         <div className={cn(
-          "w-12 h-12 rounded-xl flex items-center justify-center motion-safe:animate-in",
-          gradient 
-            ? "bg-gradient-primary shadow-glow" 
-            : "bg-secondary/50"
+          "w-10 h-10 rounded-lg flex items-center justify-center shrink-0",
+          gradient ? "bg-primary" : "bg-surface-2"
         )}>
           <Icon className={cn(
-            "w-6 h-6",
-            gradient ? "text-white" : "text-chart-blue"
+            "w-5 h-5",
+            gradient ? "text-primary-foreground" : "text-primary"
           )} />
         </div>
-        
-        <div className="flex-1">
+
+        <div className="min-w-0">
+          <p className="text-sm text-muted-foreground mb-1">{title}</p>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-foreground">{value}</span>
-            <span className="text-sm text-muted-foreground">{subtitle}</span>
+            <span className="text-2xl font-display font-bold text-foreground tabular-nums">{value}</span>
+            {subtitle && <span className="text-sm text-muted-foreground">{subtitle}</span>}
           </div>
-          <p className="text-sm text-muted-foreground mt-1">{title}</p>
         </div>
       </div>
     </div>

@@ -2,10 +2,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { habitService, Habit, HabitLog } from '@/services/habitService';
 import { useToast } from '@/hooks/use-toast';
 
-export const useHabits = () => {
+export const useHabits = (roomId?: string) => {
   return useQuery({
-    queryKey: ['habits'],
-    queryFn: habitService.getHabits,
+    queryKey: ['habits', roomId],
+    queryFn: () => habitService.getHabits(roomId),
   });
 };
 
@@ -21,19 +21,6 @@ export const useDailyStats = (date?: string) => {
     queryKey: ['daily-stats', date],
     queryFn: () => habitService.getDailyStats(date),
     refetchInterval: 30000, // Refresh every 30 seconds
-    onSuccess: (data) => {
-      console.log('useDailyStats success:', {
-        totalTime: data.totalTime,
-        completedHabits: data.completedHabits,
-        totalHabits: data.totalHabits,
-        progress: data.progress,
-        habitTimeSpent: data.habitTimeSpent,
-        habitStreaks: data.habitStreaks
-      });
-    },
-    onError: (error) => {
-      console.error('useDailyStats error:', error);
-    }
   });
 };
 
