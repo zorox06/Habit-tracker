@@ -11,6 +11,15 @@ export const useMyRooms = () => {
   });
 };
 
+export const useRoomActivity = (roomId: string) => {
+  return useQuery({
+    queryKey: ['room-activity', roomId],
+    queryFn: () => roomService.getRecentActivity(roomId),
+    enabled: !!roomId,
+    refetchInterval: 60000, // Refresh every minute
+  });
+};
+
 export const useRoom = (roomId: string) => {
   return useQuery({
     queryKey: ['room', roomId],
@@ -75,34 +84,42 @@ export const useRoomChat = (roomId: string) => {
   const [messages, setMessages] = useState<RoomMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const fetchMessages = async () => {
+    if (!roomId) return;
+    const { data, error } = await supabase
+      .from('room_messages')
+      .select('*')
+      .eq('room_id', roomId)
+      .order('created_at', { ascending: true });
+      
+    if (!error && data) {
+      setMessages(data as any as RoomMessage[]);
+    }
+  };
+
   useEffect(() => {
     if (!roomId) return;
 
     // Load initial messages
-    const fetchMessages = async () => {
+    const loadInitial = async () => {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from('room_messages')
-        .select('*')
-        .eq('room_id', roomId)
-        .order('created_at', { ascending: true });
-        
-      if (!error && data) {
-        setMessages(data as any as RoomMessage[]);
-      }
+      await fetchMessages();
       setIsLoading(false);
     };
+    loadInitial();
 
-    fetchMessages();
-
-    // Subscribe to new messages
+    // Subscribe to new messages (works only if Realtime is enabled on the table)
     const channel = supabase
       .channel(`room_${roomId}_chat`)
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'room_messages', filter: `room_id=eq.${roomId}` },
         (payload) => {
-          setMessages(prev => [...prev, payload.new as RoomMessage]);
+          setMessages(prev => {
+            // Avoid duplicates (in case refetch already added it)
+            if (prev.some(m => m.id === (payload.new as RoomMessage).id)) return prev;
+            return [...prev, payload.new as RoomMessage];
+          });
         }
       )
       .on(
@@ -123,6 +140,10 @@ export const useRoomChat = (roomId: string) => {
   
   const sendMessage = useMutation({
     mutationFn: (content: string) => roomService.sendMessage(roomId, content),
+    onSuccess: () => {
+      // Refetch messages as fallback in case Realtime is not delivering
+      fetchMessages();
+    },
     onError: (error: any) => {
       toast({ title: 'Error sending message', description: error.message, variant: 'destructive' });
     }

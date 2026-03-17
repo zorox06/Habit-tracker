@@ -1,4 +1,4 @@
-import { Clock, TrendingUp, Plus, Play, Square, Loader2, Target } from "lucide-react";
+import { Clock, TrendingUp, Plus, Play, Square, Loader2, Target, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CircularProgress } from "./CircularProgress";
 import { useToast } from "@/hooks/use-toast";
@@ -17,6 +17,7 @@ interface HabitCardProps {
   color: "cyan" | "green" | "orange" | "purple";
   icon?: React.ReactNode;
   habitId?: string;
+  onDelete?: () => void;
 }
 
 const colorMap = {
@@ -44,7 +45,8 @@ export const HabitCard = ({
   streakCount,
   color,
   icon,
-  habitId
+  habitId,
+  onDelete
 }: HabitCardProps) => {
   const { toast } = useToast();
   const startSession = useStartSession();
@@ -134,9 +136,22 @@ export const HabitCard = ({
               <p className="text-xs text-muted-foreground capitalize mt-0.5">{category}</p>
             </div>
           </div>
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <TrendingUp className="w-3 h-3" />
-            <span className="tabular-nums">{streakCount}d</span>
+          <div className="flex items-center gap-2 relative z-10">
+            {onDelete && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={(e) => { e.stopPropagation(); onDelete(); }}
+                className="w-7 h-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                aria-label="Delete habit"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <TrendingUp className="w-3 h-3" />
+              <span className="tabular-nums">{streakCount}d</span>
+            </div>
           </div>
         </div>
 

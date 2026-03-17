@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useRoom, useRoomChat, useLeaveRoom } from '@/hooks/useRooms';
+import { useRoom, useRoomChat, useLeaveRoom, useRoomActivity } from '@/hooks/useRooms';
 import { useNavigation } from '@/contexts/NavigationContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Activity, ArrowLeft, LogOut, MessageSquare, Send, Users, Plus, Target } from 'lucide-react';
 import { format } from 'date-fns';
 import { useAuth } from '@/contexts/AuthContext';
-import { useHabits, useDailyStats } from '@/hooks/useHabits';
+import { useHabits, useDailyStats, useDeleteHabit } from '@/hooks/useHabits';
 import { HabitCard } from '@/components/dashboard/HabitCard';
 import { AddHabitModal } from '@/components/modals/AddHabitModal';
 import { calculateProgress, formatMinutes } from '@/lib/utils';
@@ -28,6 +28,9 @@ const RoomDashboard = () => {
   const { data: habits = [] } = useHabits(currentRoomId || undefined);
   const { data: dailyStats } = useDailyStats() as any;
   const leaveRoom = useLeaveRoom();
+  const { data: recentActivity = [] } = useRoomActivity(currentRoomId || '');
+  const deleteHabit = useDeleteHabit();
+  const isOwner = room?.owner_id === user?.id;
 
   const [chatInput, setChatInput] = useState('');
   const [isAddHabitModalOpen, setIsAddHabitModalOpen] = useState(false);
@@ -153,14 +156,26 @@ const RoomDashboard = () => {
             <div className="bg-surface-1 p-6 rounded-xl border border-border">
               <h2 className="text-lg font-semibold mb-4 text-foreground">Recent Activity</h2>
               <div className="space-y-3">
-                <div className="text-sm p-3 bg-background rounded-lg border border-border flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-primary" />
-                  <span className="text-muted-foreground">User started a 60m session</span>
-                </div>
-                <div className="text-sm p-3 bg-background rounded-lg border border-border flex items-center gap-2 opacity-70">
-                   <Target className="w-4 h-4 text-green-500" />
-                  <span className="text-muted-foreground">Goal reached: Coding</span>
-                </div>
+                {recentActivity.length > 0 ? (
+                  recentActivity.map((activity, i) => (
+                    <div key={activity.id || i} className="text-sm p-3 bg-background rounded-lg border border-border flex flex-col gap-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-foreground">{activity.display_name}</span>
+                        <span className="text-xs text-muted-foreground">{format(new Date(activity.logged_at), 'MMM d, h:mm a')}</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Target className={`w-3.5 h-3.5 ${activity.is_completed ? 'text-green-500' : 'text-primary'}`} />
+                        <span className="text-muted-foreground">
+                          Logged {activity.duration_minutes}m on <span className="text-foreground font-medium">{activity.habit_name}</span>
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-sm p-4 text-center rounded-lg border border-dashed border-border text-muted-foreground">
+                    No recent activity yet.
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -209,6 +224,11 @@ const RoomDashboard = () => {
                     streakCount={dailyStats?.habitStreaks?.[habit.id] || 0}
                     color={habit.color as "cyan" | "green" | "orange" | "purple"}
                     icon={localIconMap[habit.icon || 'code2'] || <Target className="w-5 h-5" />}
+                    onDelete={isOwner ? () => {
+                      if (confirm(`Are you sure you want to delete the shared habit "${habit.name}"?`)) {
+                        deleteHabit.mutate(habit.id);
+                      }
+                    } : undefined}
                   />
                 );
               })}

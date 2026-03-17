@@ -197,5 +197,63 @@ export const roomService = {
       });
 
     if (error) throw error;
+  },
+
+  // Get recent activity for a room (habit logs for shared habits)
+  async getRecentActivity(roomId: string): Promise<{
+    id: string;
+    user_id: string;
+    display_name: string;
+    habit_name: string;
+    duration_minutes: number;
+    logged_at: string;
+    is_completed: boolean;
+  }[]> {
+    // 1. Get all shared habits in this room
+    const { data: habits, error: habitsError } = await supabase
+      .from('habits')
+      .select('id, name')
+      .eq('room_id', roomId)
+      .eq('status', 'active');
+
+    if (habitsError) throw habitsError;
+    if (!habits || habits.length === 0) return [];
+
+    const habitIds = habits.map(h => h.id);
+    const habitNameMap = new Map(habits.map(h => [h.id, h.name]));
+
+    // 2. Get recent logs for those habits (last 7 days, max 20)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const { data: logs, error: logsError } = await supabase
+      .from('habit_logs')
+      .select('id, habit_id, user_id, duration_minutes, logged_at, is_completed')
+      .in('habit_id', habitIds)
+      .gte('logged_at', sevenDaysAgo.toISOString())
+      .order('logged_at', { ascending: false })
+      .limit(20);
+
+    if (logsError) throw logsError;
+    if (!logs || logs.length === 0) return [];
+
+    // 3. Get display names for members in the room
+    const { data: members, error: membersError } = await supabase
+      .from('room_members')
+      .select('user_id, display_name')
+      .eq('room_id', roomId);
+
+    if (membersError) throw membersError;
+    const memberMap = new Map((members || []).map(m => [m.user_id, m.display_name]));
+
+    return logs.map(log => ({
+      id: log.id,
+      user_id: log.user_id,
+      display_name: memberMap.get(log.user_id) || 'Unknown',
+      habit_name: habitNameMap.get(log.habit_id) || 'Unknown',
+      duration_minutes: log.duration_minutes,
+      logged_at: log.logged_at,
+      is_completed: log.is_completed,
+    }));
   }
 };
