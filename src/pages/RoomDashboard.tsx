@@ -294,7 +294,7 @@ const RoomDashboard = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 rounded-xl bg-background border border-border flex flex-col items-center justify-center text-center">
                 <span className="text-3xl font-display font-bold text-orange-400 mb-1">
-                  🔥 {memberStats?.habitStreaks && Object.keys(memberStats.habitStreaks).length > 0 ? Math.max(...Object.values(memberStats.habitStreaks as Record<string, number>)) : 0}
+                  🔥 {selectedMember?.top_streak || 0}
                 </span>
                 <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Top Streak</span>
               </div>
