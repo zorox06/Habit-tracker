@@ -101,14 +101,11 @@ export const roomService = {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
-    // 1. Find room by code
-    const { data: room, error: findError } = await supabase
-      .from('rooms')
-      .select('id')
-      .eq('code', code.toUpperCase())
-      .single();
+    // 1. Find room by code (using RPC to bypass RLS as non-member)
+    const { data: rooms, error: findError } = await (supabase.rpc as any)('get_room_by_code', { p_code: code.toUpperCase() });
 
-    if (findError || !room) throw new Error('Room not found or invalid code');
+    if (findError || !rooms || (rooms as any).length === 0) throw new Error('Room not found or invalid code');
+    const room = (rooms as any)[0];
 
     // 2. Insert into members
     const { error: joinError } = await supabase
