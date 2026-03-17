@@ -33,6 +33,10 @@ const RoomDashboard = () => {
   const [isAddHabitModalOpen, setIsAddHabitModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<any | null>(null);
 
+  // Fetch selected member's personal data
+  const { data: memberHabits = [], isLoading: memberHabitsLoading } = useHabits(undefined, selectedMember?.user_id);
+  const { data: memberStats } = useDailyStats(undefined, selectedMember?.user_id) as any;
+
   if (!currentRoomId) return null;
 
   const handleBack = () => {
@@ -288,11 +292,15 @@ const RoomDashboard = () => {
           <div className="py-6 space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 rounded-xl bg-background border border-border flex flex-col items-center justify-center text-center">
-                <span className="text-3xl font-display font-bold text-orange-400 mb-1">🔥 10</span>
+                <span className="text-3xl font-display font-bold text-orange-400 mb-1">
+                  🔥 {memberStats?.habitStreaks && Object.keys(memberStats.habitStreaks).length > 0 ? Math.max(...Object.values(memberStats.habitStreaks as Record<string, number>)) : 0}
+                </span>
                 <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Top Streak</span>
               </div>
               <div className="p-4 rounded-xl bg-background border border-border flex flex-col items-center justify-center text-center">
-                <span className="text-3xl font-display font-bold text-primary mb-1">24h</span>
+                <span className="text-3xl font-display font-bold text-primary mb-1">
+                  {formatMinutes(memberStats?.totalTime || 0)}
+                </span>
                 <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Total Time</span>
               </div>
             </div>
@@ -300,14 +308,28 @@ const RoomDashboard = () => {
             <div>
               <h3 className="text-sm font-semibold mb-3 text-foreground border-b border-border pb-2">Recent Habit Activity</h3>
               <div className="space-y-2">
-                <div className="p-3 bg-surface-2 rounded-lg text-sm border border-border flex justify-between items-center">
-                  <span>Reading</span>
-                  <span className="text-green-500 font-bold text-xs uppercase">+45 min</span>
-                </div>
-                <div className="p-3 bg-surface-2 rounded-lg text-sm border border-border flex justify-between items-center">
-                  <span>Coding</span>
-                  <span className="text-green-500 font-bold text-xs uppercase">+120 min</span>
-                </div>
+                {memberHabitsLoading ? (
+                  <div className="text-center text-sm text-muted-foreground py-4">Loading habits...</div>
+                ) : memberHabits.length === 0 ? (
+                  <div className="text-center text-sm text-muted-foreground py-4">No personal habits.</div>
+                ) : (
+                  memberHabits.slice(0, 5).map((habit: any) => {
+                    const timeSpent = memberStats?.habitTimeSpent?.[habit.id] || 0;
+                    if (timeSpent === 0) return null;
+                    return (
+                      <div key={habit.id} className="p-3 bg-surface-2 rounded-lg text-sm border border-border flex justify-between items-center">
+                        <span className="flex items-center gap-2">
+                          <Target className="w-4 h-4 text-muted-foreground" />
+                          {habit.name}
+                        </span>
+                        <span className="text-green-500 font-bold text-xs uppercase">+{timeSpent} min</span>
+                      </div>
+                    );
+                  })
+                )}
+                {!memberHabitsLoading && memberHabits.length > 0 && memberHabits.every((h: any) => (memberStats?.habitTimeSpent?.[h.id] || 0) === 0) && (
+                   <div className="text-center text-sm text-muted-foreground py-4">No logged time today.</div>
+                )}
               </div>
             </div>
           </div>

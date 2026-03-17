@@ -40,7 +40,7 @@ export interface HabitSession {
 
 export const habitService = {
   // Habits CRUD
-  async getHabits(roomId?: string): Promise<Habit[]> {
+  async getHabits(roomId?: string, targetUserId?: string): Promise<Habit[]> {
     let query = supabase
       .from('habits')
       .select('*')
@@ -50,6 +50,15 @@ export const habitService = {
       query = query.eq('room_id', roomId);
     } else {
       query = query.is('room_id', null); // Only personal habits
+      
+      if (targetUserId) {
+        query = query.eq('user_id', targetUserId);
+      } else {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          query = query.eq('user_id', user.id);
+        }
+      }
     }
 
     const { data, error } = await query.order('created_at', { ascending: false });
@@ -255,7 +264,7 @@ export const habitService = {
   },
 
   // Analytics
-  async getDailyStats(date?: string): Promise<{
+  async getDailyStats(date?: string, targetUserId?: string): Promise<{
     totalTime: number;
     completedHabits: number;
     totalHabits: number;
@@ -264,22 +273,37 @@ export const habitService = {
     habitStreaks: Record<string, number>;
   }> {
     const targetDate = date || new Date().toISOString().split('T')[0];
+    
+    let userId = targetUserId;
+    if (!userId) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) userId = user.id;
+    }
 
     try {
+      let logsQuery = supabase
+        .from('habit_logs')
+        .select('habit_id, duration_minutes, is_completed, date')
+        .eq('date', targetDate);
+      if (userId) logsQuery = logsQuery.eq('user_id', userId);
+
+      let habitsQuery = supabase
+        .from('habits')
+        .select('id')
+        .eq('status', 'active');
+      if (userId) habitsQuery = habitsQuery.eq('user_id', userId);
+
+      let sessionsQuery = supabase
+        .from('habit_sessions')
+        .select('habit_id, duration_minutes, start_time')
+        .gte('start_time', `${targetDate}T00:00:00`)
+        .lt('start_time', `${targetDate}T23:59:59`);
+      if (userId) sessionsQuery = sessionsQuery.eq('user_id', userId);
+
       const [logsResult, habitsResult, sessionsResult] = await Promise.all([
-        supabase
-          .from('habit_logs')
-          .select('habit_id, duration_minutes, is_completed, date')
-          .eq('date', targetDate),
-        supabase
-          .from('habits')
-          .select('id')
-          .eq('status', 'active'),
-        supabase
-          .from('habit_sessions')
-          .select('habit_id, duration_minutes, start_time')
-          .gte('start_time', `${targetDate}T00:00:00`)
-          .lt('start_time', `${targetDate}T23:59:59`)
+        logsQuery,
+        habitsQuery,
+        sessionsQuery
       ]);
 
       if (logsResult.error) throw logsResult.error;
