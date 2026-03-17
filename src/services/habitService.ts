@@ -350,15 +350,23 @@ export const habitService = {
         totalTime
       });
 
-      // Calculate streaks (simplified - just count consecutive days with activity)
+      // Fetch actual streaks using the new RPC function
+      const { data: streaksData, error: streaksError } = await (supabase.rpc as any)('get_habit_streaks', { p_user_id: userId || null });
+
+      if (streaksError) {
+        console.error('Error fetching streaks:', streaksError);
+      } else if (streaksData) {
+        (streaksData as any).forEach((item: any) => {
+          habitStreaks[item.habit_id] = item.streak;
+        });
+      }
+
+      // Ensure all habits have at least a 0 streak if not returned by RPC
       for (const habit of habitsResult.data || []) {
         const habitId = habit.id;
-        if (!habitStreaks[habitId]) {
+        if (typeof habitStreaks[habitId] === 'undefined') {
           habitStreaks[habitId] = 0;
         }
-        
-        // For now, set a default streak. In a real app, you'd calculate this from historical data
-        habitStreaks[habitId] = Math.floor(Math.random() * 7) + 1; // Temporary random streak
       }
 
       return {
