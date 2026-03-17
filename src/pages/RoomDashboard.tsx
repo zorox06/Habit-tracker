@@ -121,7 +121,9 @@ const RoomDashboard = () => {
                 Top Members
               </h2>
               <div className="space-y-4">
-                {room.members?.map((member, i) => (
+                {[...(room.members || [])] // Create a copy to sort safely
+                  .sort((a, b) => (b.top_streak || 0) - (a.top_streak || 0)) // Sort by highest streak
+                  .map((member, i) => (
                   <div 
                     key={member.user_id} 
                     onClick={() => setSelectedMember(member)}
@@ -137,10 +139,9 @@ const RoomDashboard = () => {
                       )}
                     </div>
                     
-                    {/* Simulated Streak Sorting (For now just showing constant text, we will fetch real streaks next) */}
                     <div className="flex items-center gap-2 mt-2 sm:mt-0 ml-11 sm:ml-0">
                       <div className="px-2 py-1 rounded bg-orange-500/10 text-orange-400 text-xs font-bold flex items-center border border-orange-500/20">
-                        🔥 {Math.floor(Math.random() * 10) + 1} day streak
+                        🔥 {member.top_streak || 0} day streak
                       </div>
                       <div className="text-xs text-muted-foreground hidden sm:block">View details</div>
                     </div>

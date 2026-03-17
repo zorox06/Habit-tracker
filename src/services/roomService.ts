@@ -27,7 +27,7 @@ export interface RoomMessage {
 }
 
 export interface RoomDetails extends Room {
-  members: (RoomMember & { profiles?: { avatar_url?: string } })[];
+  members: (RoomMember & { profiles?: { avatar_url?: string }; top_streak?: number })[];
 }
 
 export const roomService = {
@@ -134,6 +134,18 @@ export const roomService = {
       .single();
 
     if (error) throw error;
+
+    // Fetch top streaks for members
+    const { data: streaksData, error: streaksError } = await (supabase.rpc as any)('get_room_members_top_streaks', { p_room_id: roomId });
+    
+    if (!streaksError && streaksData) {
+      const streaksMap = new Map((streaksData as any[]).map((s: any) => [s.user_id, s.top_streak]));
+      data.members = data.members.map((m: any) => ({
+        ...m,
+        top_streak: streaksMap.get(m.user_id) || 0
+      }));
+    }
+
     return data as RoomDetails;
   },
 
