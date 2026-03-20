@@ -26,21 +26,24 @@ const habitCategories = [
 ];
 
 const habitColors = [
+  // Palette 1
   { value: '#F72585', label: 'Neon Pink' },
   { value: '#7209B7', label: 'Deep Purple' },
   { value: '#3A0CA3', label: 'Indigo' },
   { value: '#4361EE', label: 'Royal Blue' },
   { value: '#4CC9F0', label: 'Cyan' },
-  { value: '#489FB5', label: 'Ocean Blue' },
-  { value: '#16697A', label: 'Dark Teal' },
-  { value: '#82C0CC', label: 'Pale Teal' },
+  // Palette 2
+  { value: '#471CA8', label: 'Royal Purple' },
+  { value: '#884AB2', label: 'Violet' },
+  { value: '#FF930A', label: 'Bright Orange' },
+  { value: '#F24B04', label: 'Red Orange' },
+  { value: '#D1105A', label: 'Crimson' },
+  // Palette 3
   { value: '#2F4F4F', label: 'Dark Slate' },
   { value: '#778899', label: 'Slate Gray' },
-  { value: '#884AB2', label: 'Soft Violet' },
-  { value: '#D1105A', label: 'Crimson' },
-  { value: '#F24B04', label: 'Red Orange' },
-  { value: '#FF930A', label: 'Bright Orange' },
-  { value: '#FFA62B', label: 'Golden Yellow' }
+  { value: '#F5F5DC', label: 'Beige' },
+  { value: '#ADD8E6', label: 'Light Blue' },
+  { value: '#87CEEB', label: 'Sky Blue' }
 ];
 
 export const AddHabitModal = ({ isOpen, onClose, roomId }: AddHabitModalProps) => {
