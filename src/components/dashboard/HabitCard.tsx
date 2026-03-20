@@ -14,26 +14,11 @@ interface HabitCardProps {
   timeSpentMinutes: number;
   targetTime: number;
   streakCount: number;
-  color: "cyan" | "green" | "orange" | "purple";
+  color: string;
   icon?: React.ReactNode;
   habitId?: string;
   onDelete?: () => void;
 }
-
-const colorMap = {
-  cyan: "progress-cyan",
-  green: "progress-green",
-  orange: "progress-orange",
-  purple: "progress-purple"
-};
-
-const getProgressColor = (progress: number) => {
-  if (progress >= 100) return 'text-chart-green';
-  if (progress >= 80) return 'text-chart-green';
-  if (progress >= 60) return 'text-chart-blue';
-  if (progress >= 40) return 'text-chart-orange';
-  return 'text-chart-red';
-};
 
 export const HabitCard = ({
   title,
@@ -128,8 +113,13 @@ export const HabitCard = ({
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className={`w-9 h-9 rounded-md bg-${colorMap[color]}/20 flex items-center justify-center`}>
-              {icon || <div className={`w-3.5 h-3.5 rounded-full bg-${colorMap[color]}`} />}
+            <div 
+              className="w-9 h-9 rounded-md flex items-center justify-center" 
+              style={{ backgroundColor: `${color}33` }}
+            >
+              <div style={{ color }}>
+                {icon || <div className="w-3.5 h-3.5 rounded-full" style={{ backgroundColor: color }} />}
+              </div>
             </div>
             <div>
               <h3 className="font-display font-semibold text-foreground text-[0.95rem] leading-tight">{title}</h3>
@@ -165,7 +155,7 @@ export const HabitCard = ({
         <div className="flex items-center justify-between mb-3">
           <CircularProgress progress={currentProgress} color={color} size="lg" />
           <div className="text-right">
-            <div className={`text-2xl font-display font-bold tabular-nums ${getProgressColor(currentProgress)}`}>{timeSpent}</div>
+            <div className="text-2xl font-display font-bold tabular-nums" style={{ color: currentProgress >= 100 ? '#10b981' : color }}>{timeSpent}</div>
             <div className="text-xs text-muted-foreground mt-0.5">spent today</div>
             <div className="text-xs text-muted-foreground mt-1">Target: {formatMinutes(targetTime)}</div>
             {calculateProgress(timeSpentMinutes, targetTime) >= 100 && (
@@ -178,15 +168,16 @@ export const HabitCard = ({
         <div className="mb-4">
           <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
             <span>0%</span>
-            <span className={`font-medium tabular-nums ${getProgressColor(currentProgress)}`}>
+            <span className="font-medium tabular-nums" style={{ color: currentProgress >= 100 ? '#10b981' : color }}>
               {currentProgress}%
             </span>
             <span>100%</span>
           </div>
           <div className="w-full h-1.5 bg-progress-bg rounded-full overflow-hidden">
             <div
-              className={`h-full bg-${colorMap[color]} rounded-full transition-all duration-500`}
+              className="h-full rounded-full transition-all duration-500"
               style={{
+                backgroundColor: color,
                 width: `${Math.min(100, currentProgress)}%`,
                 transitionTimingFunction: 'cubic-bezier(0.25, 1, 0.5, 1)'
               }}

@@ -26,21 +26,21 @@ const habitCategories = [
 ];
 
 const habitColors = [
-  { value: '#6B8ADB', label: 'Blue' },
-  { value: '#5BAD8A', label: 'Green' },
-  { value: '#8A8A8A', label: 'Gray' },
-  { value: '#9B7FD4', label: 'Violet' },
-  { value: '#D47B8A', label: 'Rose' },
-  { value: '#6BADC4', label: 'Teal' },
-  { value: '#D49A47', label: 'Amber' },
-  { value: '#D47B9B', label: 'Pink' },
-  { value: '#8AAD5B', label: 'Lime' },
-  { value: '#7B7FD4', label: 'Indigo' },
-  { value: '#C45B5B', label: 'Red' },
-  { value: '#5BA8C4', label: 'Sky' },
-  { value: '#C4A847', label: 'Gold' },
-  { value: '#C47B7B', label: 'Coral' },
-  { value: '#8B6B47', label: 'Brown' }
+  { value: '#F72585', label: 'Neon Pink' },
+  { value: '#7209B7', label: 'Deep Purple' },
+  { value: '#3A0CA3', label: 'Indigo' },
+  { value: '#4361EE', label: 'Royal Blue' },
+  { value: '#4CC9F0', label: 'Cyan' },
+  { value: '#489FB5', label: 'Ocean Blue' },
+  { value: '#16697A', label: 'Dark Teal' },
+  { value: '#82C0CC', label: 'Pale Teal' },
+  { value: '#2F4F4F', label: 'Dark Slate' },
+  { value: '#778899', label: 'Slate Gray' },
+  { value: '#884AB2', label: 'Soft Violet' },
+  { value: '#D1105A', label: 'Crimson' },
+  { value: '#F24B04', label: 'Red Orange' },
+  { value: '#FF930A', label: 'Bright Orange' },
+  { value: '#FFA62B', label: 'Golden Yellow' }
 ];
 
 export const AddHabitModal = ({ isOpen, onClose, roomId }: AddHabitModalProps) => {
@@ -49,7 +49,7 @@ export const AddHabitModal = ({ isOpen, onClose, roomId }: AddHabitModalProps) =
     description: '',
     category: 'development' as const,
     target_duration_minutes: 60,
-    color: '#6B8ADB'
+    color: '#4361EE'
   });
 
   const createHabit = useCreateHabit();
@@ -74,7 +74,7 @@ export const AddHabitModal = ({ isOpen, onClose, roomId }: AddHabitModalProps) =
       } as any);
       toast({ title: "Habit created", description: "Your new habit has been added." });
       onClose();
-      setFormData({ name: '', description: '', category: 'development', target_duration_minutes: 60, color: '#6B8ADB' });
+      setFormData({ name: '', description: '', category: 'development', target_duration_minutes: 60, color: '#4361EE' });
     } catch (error) {
       console.error('Error creating habit:', error);
     }

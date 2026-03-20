@@ -242,7 +242,7 @@ const DashboardContent = () => {
                   timeSpentMinutes={timeSpentMinutes}
                   targetTime={targetMinutes}
                   streakCount={dailyStats?.habitStreaks?.[habit.id] || 0}
-                  color={habit.color as "cyan" | "green" | "orange" | "purple"}
+                  color={habit.color}
                   icon={iconMap[habit.icon as keyof typeof iconMap] || iconMap.code2}
                 />
               );

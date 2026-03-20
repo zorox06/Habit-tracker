@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 interface CircularProgressProps {
   progress: number;
-  color: "cyan" | "green" | "orange" | "purple";
+  color: string;
   size?: "sm" | "md" | "lg";
   showText?: boolean;
 }
@@ -13,12 +13,7 @@ const sizeMap = {
   lg: { size: 80, strokeWidth: 5, text: "text-lg" }
 };
 
-const colorMap = {
-  cyan: "oklch(var(--progress-cyan))",
-  green: "oklch(var(--progress-green))",
-  orange: "oklch(var(--progress-orange))",
-  purple: "oklch(var(--progress-purple))"
-};
+
 
 export const CircularProgress = ({
   progress,
@@ -52,7 +47,7 @@ export const CircularProgress = ({
           cy={circleSize / 2}
           r={radius}
           fill="transparent"
-          stroke={colorMap[color]}
+          stroke={color}
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}

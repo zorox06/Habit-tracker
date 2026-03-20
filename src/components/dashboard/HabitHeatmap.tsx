@@ -66,28 +66,14 @@ export const HabitHeatmap: React.FC<HabitHeatmapProps> = ({ habitId, targetTime,
     currentDate = new Date(currentDate.setDate(currentDate.getDate() + 1));
   }
 
-  // Define themes
-  // We'll use CSS custom properties or valid color strings. 
-  // Let's use a standard green theme as default or map the habit color
-  const colorSchemes = {
-    cyan: ['#1e293b', '#0891b2', '#06b6d4', '#22d3ee', '#67e8f9'],
-    green: ['#1e293b', '#059669', '#10b981', '#34d399', '#6ee7b7'],
-    orange: ['#1e293b', '#d97706', '#f59e0b', '#fbbf24', '#fcd34d'],
-    purple: ['#1e293b', '#7c3aed', '#8b5cf6', '#a78bfa', '#c4b5fd'],
-    default: ['#1e293b', '#059669', '#10b981', '#34d399', '#6ee7b7']
-  };
-
-  // For dark mode aesthetics, Activity Calendar provides light/dark themes
+  // We'll calculate opacities automatically for any given hex color.
+  // 33 = 20%, 66 = 40%, 99 = 60%, CC = 80%, FF = 100%
+  const baseColor = (colorTheme && colorTheme.startsWith('#')) ? colorTheme : '#10b981';
+  
   const explicitTheme: ThemeInput = {
-    light: ['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39'],
-    dark: ['#161b22', '#0e4429', '#006d32', '#26a641', '#39d353'],
+    light: ['#ebedf0', `${baseColor}40`, `${baseColor}80`, `${baseColor}bf`, baseColor],
+    dark: ['#1e293b', `${baseColor}40`, `${baseColor}80`, `${baseColor}bf`, baseColor],
   };
-
-  // Adjust theme if we have specific colors, or just use default github-like
-  if (colorSchemes[colorTheme as keyof typeof colorSchemes]) {
-    explicitTheme.dark = colorSchemes[colorTheme as keyof typeof colorSchemes] as any;
-    // Just using the same for light theme for simplicity, or we could customize
-  }
 
   // Determine current theme from html class
   const isDarkMode = document.documentElement.classList.contains('dark') || true;
