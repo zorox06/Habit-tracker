@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useStartSession, useLogHabit, useActiveSessions, useEndSession } from "@/hooks/useHabits";
 import { useState, useEffect } from "react";
 import { calculateProgress, parseTimeString, formatMinutes } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 interface HabitCardProps {
   title: string;
@@ -14,26 +15,11 @@ interface HabitCardProps {
   timeSpentMinutes: number;
   targetTime: number;
   streakCount: number;
-  color: "cyan" | "green" | "orange" | "purple";
+  color: string;
   icon?: React.ReactNode;
   habitId?: string;
   onDelete?: () => void;
 }
-
-const colorMap = {
-  cyan: "progress-cyan",
-  green: "progress-green",
-  orange: "progress-orange",
-  purple: "progress-purple"
-};
-
-const getProgressColor = (progress: number) => {
-  if (progress >= 100) return 'text-chart-green';
-  if (progress >= 80) return 'text-chart-green';
-  if (progress >= 60) return 'text-chart-blue';
-  if (progress >= 40) return 'text-chart-orange';
-  return 'text-chart-red';
-};
 
 export const HabitCard = ({
   title,
@@ -124,13 +110,24 @@ export const HabitCard = ({
 
   return (
     <>
-      <div className="p-5 rounded-lg bg-surface-1 border border-border transition-colors duration-150 hover:bg-surface-2">
+      <motion.div 
+        whileHover={{ scale: 1.015, y: -2 }}
+        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+        className="p-5 rounded-lg bg-surface-1 border border-border transition-colors duration-150 hover:bg-surface-2 hover:shadow-lg"
+        style={{ '--hover-color': `${color}15` } as React.CSSProperties}
+      >
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className={`w-9 h-9 rounded-md bg-${colorMap[color]}/20 flex items-center justify-center`}>
-              {icon || <div className={`w-3.5 h-3.5 rounded-full bg-${colorMap[color]}`} />}
-            </div>
+            <motion.div 
+              whileHover={{ rotate: 10, scale: 1.1 }}
+              className="w-9 h-9 rounded-md flex items-center justify-center" 
+              style={{ backgroundColor: `${color}33` }}
+            >
+              <div style={{ color }}>
+                {icon || <div className="w-3.5 h-3.5 rounded-full" style={{ backgroundColor: color }} />}
+              </div>
+            </motion.div>
             <div>
               <h3 className="font-display font-semibold text-foreground text-[0.95rem] leading-tight">{title}</h3>
               <p className="text-xs text-muted-foreground capitalize mt-0.5">{category}</p>
@@ -165,7 +162,7 @@ export const HabitCard = ({
         <div className="flex items-center justify-between mb-3">
           <CircularProgress progress={currentProgress} color={color} size="lg" />
           <div className="text-right">
-            <div className={`text-2xl font-display font-bold tabular-nums ${getProgressColor(currentProgress)}`}>{timeSpent}</div>
+            <div className="text-2xl font-display font-bold tabular-nums" style={{ color: currentProgress >= 100 ? '#10b981' : color }}>{timeSpent}</div>
             <div className="text-xs text-muted-foreground mt-0.5">spent today</div>
             <div className="text-xs text-muted-foreground mt-1">Target: {formatMinutes(targetTime)}</div>
             {calculateProgress(timeSpentMinutes, targetTime) >= 100 && (
@@ -178,18 +175,18 @@ export const HabitCard = ({
         <div className="mb-4">
           <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
             <span>0%</span>
-            <span className={`font-medium tabular-nums ${getProgressColor(currentProgress)}`}>
+            <span className="font-medium tabular-nums" style={{ color: currentProgress >= 100 ? '#10b981' : color }}>
               {currentProgress}%
             </span>
             <span>100%</span>
           </div>
           <div className="w-full h-1.5 bg-progress-bg rounded-full overflow-hidden">
-            <div
-              className={`h-full bg-${colorMap[color]} rounded-full transition-all duration-500`}
-              style={{
-                width: `${Math.min(100, currentProgress)}%`,
-                transitionTimingFunction: 'cubic-bezier(0.25, 1, 0.5, 1)'
-              }}
+            <motion.div
+              className="h-full rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${Math.min(100, currentProgress)}%` }}
+              transition={{ duration: 1.5, ease: [0.25, 1, 0.5, 1] }}
+              style={{ backgroundColor: color }}
             />
           </div>
           {isTracking && (
@@ -206,7 +203,7 @@ export const HabitCard = ({
               onClick={handleStopTimer}
               variant="outline"
               size="sm"
-              className="flex-1 h-9 border-destructive/30 text-destructive hover:bg-destructive/10"
+              className="flex-1 h-9 border-destructive/30 text-destructive hover:bg-destructive/10 transition-colors"
             >
               <Square className="w-4 h-4 mr-2" />
               Stop ({Math.floor(trackedTime / 60)}m {trackedTime % 60}s)
@@ -217,7 +214,7 @@ export const HabitCard = ({
               disabled={startSession.isPending}
               variant="outline"
               size="sm"
-              className="flex-1 h-9 border-border hover:bg-surface-2"
+              className="flex-1 h-9 border-border hover:bg-surface-2 hover:border-primary/50 transition-colors"
             >
               {startSession.isPending ? (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -231,13 +228,13 @@ export const HabitCard = ({
             onClick={handleLogTime}
             variant="outline"
             size="sm"
-            className="px-3 h-9 border-border hover:bg-surface-2"
+            className="px-3 h-9 border-border hover:bg-surface-2 transition-colors"
           >
             <Plus className="w-4 h-4" />
             Log
           </Button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Log Time Modal */}
       {isLogModalOpen && (

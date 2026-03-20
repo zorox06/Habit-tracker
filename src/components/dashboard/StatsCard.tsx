@@ -10,6 +10,8 @@ interface StatsCardProps {
   className?: string;
 }
 
+import { motion } from "framer-motion";
+
 export const StatsCard = ({
   title,
   value,
@@ -19,13 +21,16 @@ export const StatsCard = ({
   className
 }: StatsCardProps) => {
   return (
-    <div className={cn(
+    <motion.div 
+      whileHover={{ y: -4, scale: 1.02 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      className={cn(
       "p-5 rounded-lg bg-surface-1 border border-border transition-colors duration-150 hover:bg-surface-2",
       className
     )}>
       <div className="flex items-start gap-4">
         <div className={cn(
-          "w-10 h-10 rounded-lg flex items-center justify-center shrink-0",
+          "w-10 h-10 rounded-lg flex items-center justify-center shrink-0 shadow-sm",
           gradient ? "bg-primary" : "bg-surface-2"
         )}>
           <Icon className={cn(
@@ -42,6 +47,6 @@ export const StatsCard = ({
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };

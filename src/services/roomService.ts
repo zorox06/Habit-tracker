@@ -199,7 +199,7 @@ export const roomService = {
     if (error) throw error;
   },
 
-  // Get recent activity for a room (habit logs for shared habits)
+  // Get recent activity for a room — ALL habit logs from room members (personal + shared)
   async getRecentActivity(roomId: string): Promise<{
     id: string;
     user_id: string;
@@ -209,20 +209,32 @@ export const roomService = {
     logged_at: string;
     is_completed: boolean;
   }[]> {
-    // 1. Get all shared habits in this room
-    const { data: habits, error: habitsError } = await supabase
+    // 1. Get all member user IDs and display names
+    const { data: members, error: membersError } = await supabase
+      .from('room_members')
+      .select('user_id, display_name')
+      .eq('room_id', roomId);
+
+    if (membersError) throw membersError;
+    if (!members || members.length === 0) return [];
+
+    const memberIds = members.map(m => m.user_id);
+    const memberMap = new Map(members.map(m => [m.user_id, m.display_name]));
+
+    // 2. Get ALL habits belonging to any member (personal + shared)
+    const { data: allHabits, error: habitsError } = await supabase
       .from('habits')
-      .select('id, name')
-      .eq('room_id', roomId)
+      .select('id, name, user_id')
+      .in('user_id', memberIds)
       .eq('status', 'active');
 
     if (habitsError) throw habitsError;
-    if (!habits || habits.length === 0) return [];
+    if (!allHabits || allHabits.length === 0) return [];
 
-    const habitIds = habits.map(h => h.id);
-    const habitNameMap = new Map(habits.map(h => [h.id, h.name]));
+    const habitIds = allHabits.map(h => h.id);
+    const habitNameMap = new Map(allHabits.map(h => [h.id, h.name]));
 
-    // 2. Get recent logs for those habits (last 7 days, max 20)
+    // 3. Get recent logs for all those habits (last 7 days, max 30)
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
@@ -230,21 +242,13 @@ export const roomService = {
       .from('habit_logs')
       .select('id, habit_id, user_id, duration_minutes, logged_at, is_completed')
       .in('habit_id', habitIds)
+      .in('user_id', memberIds)
       .gte('logged_at', sevenDaysAgo.toISOString())
       .order('logged_at', { ascending: false })
-      .limit(20);
+      .limit(30);
 
     if (logsError) throw logsError;
     if (!logs || logs.length === 0) return [];
-
-    // 3. Get display names for members in the room
-    const { data: members, error: membersError } = await supabase
-      .from('room_members')
-      .select('user_id, display_name')
-      .eq('room_id', roomId);
-
-    if (membersError) throw membersError;
-    const memberMap = new Map((members || []).map(m => [m.user_id, m.display_name]));
 
     return logs.map(log => ({
       id: log.id,
