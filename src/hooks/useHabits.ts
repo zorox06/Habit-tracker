@@ -16,6 +16,14 @@ export const useHabitLogs = (date?: string) => {
   });
 };
 
+export const useHabitLogsByHabit = (habitId: string, startDate?: string, endDate?: string) => {
+  return useQuery({
+    queryKey: ['habit-logs', habitId, startDate, endDate],
+    queryFn: () => habitService.getHabitLogsByHabit(habitId, startDate, endDate),
+    enabled: !!habitId,
+  });
+};
+
 export const useDailyStats = (date?: string, targetUserId?: string) => {
   return useQuery({
     queryKey: ['daily-stats', date, targetUserId],

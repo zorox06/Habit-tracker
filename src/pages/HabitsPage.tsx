@@ -5,6 +5,9 @@ import { AddHabitModal } from "@/components/modals/AddHabitModal";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { HabitHeatmap } from "@/components/dashboard/HabitHeatmap";
+import { Activity, ChevronDown, ChevronUp } from "lucide-react";
 
 const HabitsPage = () => {
   const { data: habits = [], isLoading } = useHabits();
@@ -14,6 +17,11 @@ const HabitsPage = () => {
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [habitToDelete, setHabitToDelete] = useState<string | null>(null);
+  const [expandedHabitId, setExpandedHabitId] = useState<string | null>(null);
+
+  const toggleExpand = (habitId: string) => {
+    setExpandedHabitId(expandedHabitId === habitId ? null : habitId);
+  };
 
   const handleEditHabit = (habitId: string) => {
     toast({ title: "Edit feature coming soon", description: "Habit editing will be available in the next update." });
@@ -113,6 +121,34 @@ const HabitsPage = () => {
                       style={{ backgroundColor: habit.color }}
                     />
                   </div>
+                </div>
+
+                <div className="mt-5 border-t border-border pt-4">
+                  <Collapsible
+                    open={expandedHabitId === habit.id}
+                    onOpenChange={() => toggleExpand(habit.id)}
+                  >
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" className="w-full flex justify-between items-center text-sm font-medium text-muted-foreground hover:text-foreground">
+                        <span className="flex items-center gap-2">
+                          <Activity className="w-4 h-4" />
+                          Activity Graph
+                        </span>
+                        {expandedHabitId === habit.id ? (
+                          <ChevronUp className="w-4 h-4" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="pt-4 pb-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                      <HabitHeatmap 
+                        habitId={habit.id} 
+                        targetTime={habit.target_duration_minutes || 60} 
+                        colorTheme={habit.color}
+                      />
+                    </CollapsibleContent>
+                  </Collapsible>
                 </div>
               </div>
             </div>
