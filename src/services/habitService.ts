@@ -121,6 +121,25 @@ export const habitService = {
     return data || [];
   },
 
+  async getHabitLogsByHabit(habitId: string, startDate?: string, endDate?: string): Promise<HabitLog[]> {
+    let query = supabase
+      .from('habit_logs')
+      .select('*')
+      .eq('habit_id', habitId)
+      .order('date', { ascending: true });
+
+    if (startDate) {
+      query = query.gte('date', startDate);
+    }
+    if (endDate) {
+      query = query.lte('date', endDate);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    return data || [];
+  },
+
   async logHabit(habitId: string, duration: number, notes?: string): Promise<HabitLog> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
