@@ -16,6 +16,27 @@ import CalendarPage from "./CalendarPage";
 import RoomsPage from "./RoomsPage";
 import RoomDashboard from "./RoomDashboard";
 import { formatMinutes, calculateProgress } from "@/lib/utils";
+import { motion, Variants } from "framer-motion";
+import { Capacitor } from "@capacitor/core";
+import { MobileLayout } from "@/components/mobile/MobileLayout";
+import { MobileDashboard } from "@/components/mobile/MobileDashboard";
+import { MobileAnalytics } from "@/components/mobile/MobileAnalytics";
+import { MobileCalendar } from "@/components/mobile/MobileCalendar";
+
+const isNative = Capacitor.isNativePlatform();
+
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.1 }
+  }
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+};
 
 export const iconMap = {
   code2: <Code2 className="w-5 h-5" />,
@@ -59,6 +80,28 @@ const DashboardContent = () => {
 
   const handleAddNewHabit = () => setIsAddHabitModalOpen(true);
   const handleGoToHabits = () => setCurrentPage('habits');
+
+  // --- MOBILE LAYOUT (Capacitor native) ---
+  if (isNative) {
+    const renderMobilePage = () => {
+      switch (currentPage) {
+        case 'habits': return <HabitsPage />;
+        case 'analytics': return <MobileAnalytics />;
+        case 'calendar': return <MobileCalendar />;
+        case 'rooms': return <RoomsPage />;
+        case 'room_detail': return <RoomDashboard />;
+        default: return <MobileDashboard onAddHabit={handleAddNewHabit} />;
+      }
+    };
+    return (
+      <MobileLayout>
+        {renderMobilePage()}
+        <AddHabitModal isOpen={isAddHabitModalOpen} onClose={() => setIsAddHabitModalOpen(false)} />
+      </MobileLayout>
+    );
+  }
+
+  // --- WEB LAYOUT (browser) ---
 
   const renderCurrentPage = () => {
     switch (currentPage) {
@@ -107,7 +150,12 @@ const DashboardContent = () => {
   ];
 
   const renderDashboardHome = () => (
-    <div className="space-y-8 animate-fade-up">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="space-y-8"
+    >
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -155,18 +203,19 @@ const DashboardContent = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 stagger-children">
+      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat) => (
-          <StatsCard
-            key={stat.title}
-            title={stat.title}
-            value={stat.value}
-            subtitle={stat.subtitle}
-            icon={stat.icon}
-            gradient={stat.gradient}
-          />
+          <motion.div key={stat.title} variants={itemVariants}>
+            <StatsCard
+              title={stat.title}
+              value={stat.value}
+              subtitle={stat.subtitle}
+              icon={stat.icon}
+              gradient={stat.gradient}
+            />
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Daily Progress */}
       <div>
@@ -224,7 +273,7 @@ const DashboardContent = () => {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 stagger-children">
+          <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {habits.slice(0, 4).map((habit) => {
               const targetMinutes = habit.target_duration_minutes || 60;
               const timeSpentMinutes = dailyStats?.habitTimeSpent?.[habit.id] || 0;
@@ -232,19 +281,20 @@ const DashboardContent = () => {
               const timeSpentFormatted = formatMinutes(timeSpentMinutes);
 
               return (
-                <HabitCard
-                  key={habit.id}
-                  habitId={habit.id}
-                  title={habit.name}
-                  category={habit.category}
-                  progress={progress}
-                  timeSpent={timeSpentFormatted}
-                  timeSpentMinutes={timeSpentMinutes}
-                  targetTime={targetMinutes}
-                  streakCount={dailyStats?.habitStreaks?.[habit.id] || 0}
-                  color={habit.color}
-                  icon={iconMap[habit.icon as keyof typeof iconMap] || iconMap.code2}
-                />
+                <motion.div key={habit.id} variants={itemVariants}>
+                  <HabitCard
+                    habitId={habit.id}
+                    title={habit.name}
+                    category={habit.category}
+                    progress={progress}
+                    timeSpent={timeSpentFormatted}
+                    timeSpentMinutes={timeSpentMinutes}
+                    targetTime={targetMinutes}
+                    streakCount={dailyStats?.habitStreaks?.[habit.id] || 0}
+                    color={habit.color}
+                    icon={iconMap[habit.icon as keyof typeof iconMap] || iconMap.code2}
+                  />
+                </motion.div>
               );
             })}
             {habits.length > 4 && (
@@ -258,10 +308,10 @@ const DashboardContent = () => {
                 </Button>
               </div>
             )}
-          </div>
+          </motion.div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 
   return (

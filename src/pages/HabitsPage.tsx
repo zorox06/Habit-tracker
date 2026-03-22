@@ -2,6 +2,7 @@ import { Target, Plus, Edit, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useHabits, useUpdateHabit, useDeleteHabit } from "@/hooks/useHabits";
 import { AddHabitModal } from "@/components/modals/AddHabitModal";
+import { EditHabitModal } from "@/components/modals/EditHabitModal";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -16,6 +17,7 @@ const HabitsPage = () => {
   const { toast } = useToast();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [habitToEdit, setHabitToEdit] = useState<any>(null);
   const [habitToDelete, setHabitToDelete] = useState<string | null>(null);
   const [expandedHabitId, setExpandedHabitId] = useState<string | null>(null);
 
@@ -24,7 +26,8 @@ const HabitsPage = () => {
   };
 
   const handleEditHabit = (habitId: string) => {
-    toast({ title: "Edit feature coming soon", description: "Habit editing will be available in the next update." });
+    const habit = habits.find(h => h.id === habitId);
+    if (habit) setHabitToEdit(habit);
   };
 
   const handleDeleteHabit = (habitId: string) => setHabitToDelete(habitId);
@@ -157,6 +160,7 @@ const HabitsPage = () => {
       )}
 
       <AddHabitModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
+      <EditHabitModal isOpen={!!habitToEdit} habitToEdit={habitToEdit} onClose={() => setHabitToEdit(null)} />
 
       <AlertDialog open={!!habitToDelete} onOpenChange={() => setHabitToDelete(null)}>
         <AlertDialogContent className="bg-surface-1 border-border">

@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useStartSession, useLogHabit, useActiveSessions, useEndSession } from "@/hooks/useHabits";
 import { useState, useEffect } from "react";
 import { calculateProgress, parseTimeString, formatMinutes } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 interface HabitCardProps {
   title: string;
@@ -52,7 +53,7 @@ export const HabitCard = ({
       return;
     }
     try {
-      await startSession.mutateAsync(habitId);
+      await startSession.mutateAsync({ habitId, habitName: title, targetMinutes: targetTime });
       toast({ title: "Timer started", description: `Tracking time for ${title}.` });
     } catch (error) {
       toast({ title: "Error starting timer", description: "Failed to start. Please try again.", variant: "destructive" });
@@ -109,18 +110,24 @@ export const HabitCard = ({
 
   return (
     <>
-      <div className="p-5 rounded-lg bg-surface-1 border border-border transition-colors duration-150 hover:bg-surface-2">
+      <motion.div 
+        whileHover={{ scale: 1.015, y: -2 }}
+        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+        className="p-5 rounded-lg bg-surface-1 border border-border transition-colors duration-150 hover:bg-surface-2 hover:shadow-lg"
+        style={{ '--hover-color': `${color}15` } as React.CSSProperties}
+      >
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div 
+            <motion.div 
+              whileHover={{ rotate: 10, scale: 1.1 }}
               className="w-9 h-9 rounded-md flex items-center justify-center" 
               style={{ backgroundColor: `${color}33` }}
             >
               <div style={{ color }}>
                 {icon || <div className="w-3.5 h-3.5 rounded-full" style={{ backgroundColor: color }} />}
               </div>
-            </div>
+            </motion.div>
             <div>
               <h3 className="font-display font-semibold text-foreground text-[0.95rem] leading-tight">{title}</h3>
               <p className="text-xs text-muted-foreground capitalize mt-0.5">{category}</p>
@@ -174,13 +181,12 @@ export const HabitCard = ({
             <span>100%</span>
           </div>
           <div className="w-full h-1.5 bg-progress-bg rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-500"
-              style={{
-                backgroundColor: color,
-                width: `${Math.min(100, currentProgress)}%`,
-                transitionTimingFunction: 'cubic-bezier(0.25, 1, 0.5, 1)'
-              }}
+            <motion.div
+              className="h-full rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${Math.min(100, currentProgress)}%` }}
+              transition={{ duration: 1.5, ease: [0.25, 1, 0.5, 1] }}
+              style={{ backgroundColor: color }}
             />
           </div>
           {isTracking && (
@@ -197,7 +203,7 @@ export const HabitCard = ({
               onClick={handleStopTimer}
               variant="outline"
               size="sm"
-              className="flex-1 h-9 border-destructive/30 text-destructive hover:bg-destructive/10"
+              className="flex-1 h-9 border-destructive/30 text-destructive hover:bg-destructive/10 transition-colors"
             >
               <Square className="w-4 h-4 mr-2" />
               Stop ({Math.floor(trackedTime / 60)}m {trackedTime % 60}s)
@@ -208,7 +214,7 @@ export const HabitCard = ({
               disabled={startSession.isPending}
               variant="outline"
               size="sm"
-              className="flex-1 h-9 border-border hover:bg-surface-2"
+              className="flex-1 h-9 border-border hover:bg-surface-2 hover:border-primary/50 transition-colors"
             >
               {startSession.isPending ? (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -222,13 +228,13 @@ export const HabitCard = ({
             onClick={handleLogTime}
             variant="outline"
             size="sm"
-            className="px-3 h-9 border-border hover:bg-surface-2"
+            className="px-3 h-9 border-border hover:bg-surface-2 transition-colors"
           >
             <Plus className="w-4 h-4" />
             Log
           </Button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Log Time Modal */}
       {isLogModalOpen && (

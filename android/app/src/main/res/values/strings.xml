@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">HabitTracker</string>
+    <string name="title_activity_main">HabitTracker</string>
+    <string name="package_name">com.habittracker.app</string>
+    <string name="custom_url_scheme">com.habittracker.app</string>
+    <string name="widget_description">Shows your currently active habit tracking session</string>
+    <string name="server_client_id">821756408417-6u9qbhbd755mu65gll0p46cf4vqri1de.apps.googleusercontent.com</string>
+</resources>

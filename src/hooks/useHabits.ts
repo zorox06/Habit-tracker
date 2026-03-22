@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { habitService, Habit, HabitLog } from '@/services/habitService';
 import { useToast } from '@/hooks/use-toast';
+import { notificationService } from '@/services/notificationService';
 
 export const useHabits = (roomId?: string, targetUserId?: string) => {
   return useQuery({
@@ -21,6 +22,16 @@ export const useHabitLogsByHabit = (habitId: string, startDate?: string, endDate
     queryKey: ['habit-logs', habitId, startDate, endDate],
     queryFn: () => habitService.getHabitLogsByHabit(habitId, startDate, endDate),
     enabled: !!habitId,
+    staleTime: 5 * 60 * 1000, // Only refetch heatmaps every 5 mins max
+  });
+};
+
+export const useHabitLogsForHabits = (habitIds: string[], startDate?: string, endDate?: string) => {
+  return useQuery({
+    queryKey: ['habit-logs-bulk', habitIds, startDate, endDate],
+    queryFn: () => habitService.getHabitLogsForHabits(habitIds, startDate, endDate),
+    enabled: habitIds && habitIds.length > 0,
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -96,9 +107,21 @@ export const useLogHabit = () => {
   return useMutation({
     mutationFn: ({ habitId, duration, notes }: { habitId: string; duration: number; notes?: string }) =>
       habitService.logHabit(habitId, duration, notes),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['habit-logs'] });
+    onSuccess: (_, { habitId }) => {
+      const localToday = new Date();
+      const todayStr = localToday.getFullYear() + '-' + String(localToday.getMonth() + 1).padStart(2, '0') + '-' + String(localToday.getDate()).padStart(2, '0');
+      
+      // Invalidate specifically the logged habit and today's general logs to avoid refetching 365 days of all habits
+      queryClient.invalidateQueries({ queryKey: ['habit-logs', habitId] });
+      queryClient.invalidateQueries({ queryKey: ['habit-logs-bulk'] });
+      queryClient.invalidateQueries({ queryKey: ['habit-logs', todayStr] });
       queryClient.invalidateQueries({ queryKey: ['daily-stats'] });
+      
+      // Update widget non-blocking so the success toast is instant
+      habitService.getDailyStats().then(stats => {
+        notificationService.updateDailyProgress(stats.progress, stats.completedHabits, stats.totalHabits);
+      }).catch(console.error);
+      
       toast({
         title: "Progress logged!",
         description: "Your habit progress has been recorded.",
@@ -119,9 +142,11 @@ export const useStartSession = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: (habitId: string) => habitService.startSession(habitId),
-    onSuccess: () => {
+    mutationFn: ({ habitId, habitName, targetMinutes }: { habitId: string; habitName: string; targetMinutes?: number }) => habitService.startSession(habitId),
+    onSuccess: (_, { habitName, targetMinutes }) => {
       queryClient.invalidateQueries({ queryKey: ['active-sessions'] });
+      // Show persistent notification + update widget
+      notificationService.showTrackingNotification(habitName, targetMinutes || 60);
       toast({
         title: "Session started!",
         description: "Time tracking has begun for this habit.",
@@ -143,10 +168,30 @@ export const useEndSession = () => {
 
   return useMutation({
     mutationFn: (sessionId: string) => habitService.endSession(sessionId),
-    onSuccess: () => {
+    onSuccess: (data) => {
+      const localToday = new Date();
+      const todayStr = localToday.getFullYear() + '-' + String(localToday.getMonth() + 1).padStart(2, '0') + '-' + String(localToday.getDate()).padStart(2, '0');
+      
       queryClient.invalidateQueries({ queryKey: ['active-sessions'] });
-      queryClient.invalidateQueries({ queryKey: ['habit-logs'] });
+      
+      // Use specific invalidation if habit_id exists
+      if (data?.habit_id) {
+        queryClient.invalidateQueries({ queryKey: ['habit-logs', data.habit_id] });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['habit-logs'] });
+      }
+      queryClient.invalidateQueries({ queryKey: ['habit-logs-bulk'] });
+      queryClient.invalidateQueries({ queryKey: ['habit-logs', todayStr] });
       queryClient.invalidateQueries({ queryKey: ['daily-stats'] });
+      
+      // Clear persistent notification
+      notificationService.clearTrackingNotification();
+      
+      // Update widget non-blocking
+      habitService.getDailyStats().then(stats => {
+        notificationService.updateDailyProgress(stats.progress, stats.completedHabits, stats.totalHabits);
+      }).catch(console.error);
+
       toast({
         title: "Session ended!",
         description: "Your time has been logged successfully.",

@@ -140,11 +140,29 @@ export const habitService = {
     return data || [];
   },
 
+  async getHabitLogsForHabits(habitIds: string[], startDate?: string, endDate?: string): Promise<HabitLog[]> {
+    if (!habitIds || habitIds.length === 0) return [];
+    
+    let query = supabase
+      .from('habit_logs')
+      .select('*')
+      .in('habit_id', habitIds)
+      .order('date', { ascending: true });
+
+    if (startDate) query = query.gte('date', startDate);
+    if (endDate) query = query.lte('date', endDate);
+
+    const { data, error } = await query;
+    if (error) throw error;
+    return data || [];
+  },
+
   async logHabit(habitId: string, duration: number, notes?: string): Promise<HabitLog> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
-    const today = new Date().toISOString().split('T')[0];
+    const localToday = new Date();
+    const today = localToday.getFullYear() + '-' + String(localToday.getMonth() + 1).padStart(2, '0') + '-' + String(localToday.getDate()).padStart(2, '0');
 
     try {
       // First try to insert a new log
@@ -291,7 +309,10 @@ export const habitService = {
     habitTimeSpent: Record<string, number>;
     habitStreaks: Record<string, number>;
   }> {
-    const targetDate = date || new Date().toISOString().split('T')[0];
+    // Determine the local date string to accurately match user timezone
+    const localToday = new Date();
+    const todayStr = localToday.getFullYear() + '-' + String(localToday.getMonth() + 1).padStart(2, '0') + '-' + String(localToday.getDate()).padStart(2, '0');
+    const targetDate = date || todayStr;
     
     let userId = targetUserId;
     if (!userId) {
@@ -407,7 +428,8 @@ export const habitService = {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
-    const today = new Date().toISOString().split('T')[0];
+    const localToday = new Date();
+    const today = localToday.getFullYear() + '-' + String(localToday.getMonth() + 1).padStart(2, '0') + '-' + String(localToday.getDate()).padStart(2, '0');
 
     try {
       // Delete today's sessions and logs
@@ -437,21 +459,51 @@ export const habitService = {
     if (!user) throw new Error('User not authenticated');
 
     try {
-      // Delete in order to respect foreign key constraints
+      // 1. Get all habit IDs for this user (personal only, not room-shared)
+      const { data: userHabits } = await supabase
+        .from('habits')
+        .select('id')
+        .eq('user_id', user.id)
+        .is('room_id', null);
+
+      const habitIds = (userHabits || []).map(h => h.id);
+
+      // 2. Delete sessions for these habits
+      if (habitIds.length > 0) {
+        await supabase
+          .from('habit_sessions')
+          .delete()
+          .in('habit_id', habitIds);
+      }
+      // Also delete any sessions by user_id (catches edge cases)
       await supabase
         .from('habit_sessions')
         .delete()
         .eq('user_id', user.id);
 
+      // 3. Delete logs for these habits
+      if (habitIds.length > 0) {
+        await supabase
+          .from('habit_logs')
+          .delete()
+          .in('habit_id', habitIds);
+      }
+      // Also delete any logs by user_id
       await supabase
         .from('habit_logs')
         .delete()
         .eq('user_id', user.id);
 
-      await supabase
-        .from('habits')
-        .delete()
-        .eq('user_id', user.id);
+      // 4. Now delete the habits (FK constraints should be clear)
+      if (habitIds.length > 0) {
+        await supabase
+          .from('habits')
+          .delete()
+          .in('id', habitIds);
+      }
+
+      // 5. Clear local calendar tasks too
+      try { localStorage.removeItem('calendarTasks'); } catch {}
 
       console.log('All user data cleared successfully');
     } catch (error) {

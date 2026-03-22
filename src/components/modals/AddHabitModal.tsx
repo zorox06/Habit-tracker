@@ -86,8 +86,8 @@ export const AddHabitModal = ({ isOpen, onClose, roomId }: AddHabitModalProps) =
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-background/80 z-50 flex items-center justify-center p-4">
-      <div className="bg-surface-1 border border-border rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto animate-fade-up">
+    <div className="fixed inset-0 bg-background/80 z-50 flex items-start justify-center overflow-y-auto p-4 pt-[10vh]">
+      <div className="bg-surface-1 border border-border rounded-lg w-full max-w-md overflow-y-auto animate-fade-up mb-4" style={{ maxHeight: 'calc(100vh - 12vh)' }}>
         <div className="flex items-center justify-between p-5 border-b border-border">
           <h2 className="text-lg font-display font-semibold text-foreground">Add New Habit</h2>
           <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0 hover:bg-surface-2">

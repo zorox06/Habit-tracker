@@ -67,7 +67,8 @@ const TimeTrackerPage = () => {
     }
 
     try {
-      await startSession.mutateAsync(habitId);
+      const habitInfo = habits.find(h => h.id === habitId);
+      await startSession.mutateAsync({ habitId, habitName: habitInfo?.name || 'Habit', targetMinutes: habitInfo?.target_duration_minutes || 60 });
       setActiveTimer(habitId);
       setTimeElapsed(prev => ({ ...prev, [habitId]: 0 }));
       startTimerInterval(habitId);

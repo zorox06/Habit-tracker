@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_background"
+    android:padding="12dp">
+
+    <!-- Circular gradient background -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:background="@drawable/widget_circle_bg">
+
+        <!-- Content centered on circle -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <!-- Big percentage number -->
+            <TextView
+                android:id="@+id/widget_percentage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0%"
+                android:textSize="36sp"
+                android:textColor="#1A1A2E"
+                android:fontFamily="sans-serif-black"
+                android:gravity="center" />
+
+            <!-- Habit name / status label -->
+            <TextView
+                android:id="@+id/widget_habit_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No active habit"
+                android:textSize="10sp"
+                android:textColor="#1A1A2E"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:layout_marginTop="2dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp" />
+
+            <!-- Timer text -->
+            <TextView
+                android:id="@+id/widget_timer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="12sp"
+                android:textColor="#1A1A2E"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:layout_marginTop="2dp"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <!-- Status indicator (top-left corner) -->
+    <TextView
+        android:id="@+id/widget_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="💤"
+        android:textSize="14sp"
+        android:layout_gravity="top|start"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="4dp" />
+
+    <!-- Subtext (hidden when tracking) -->
+    <TextView
+        android:id="@+id/widget_subtext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="1sp"
+        android:visibility="gone" />
+
+</FrameLayout>

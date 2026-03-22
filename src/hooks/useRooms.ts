@@ -2,7 +2,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { roomService, RoomDetails, RoomMessage } from '@/services/roomService';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { notificationService } from '@/services/notificationService';
 
 export const useMyRooms = () => {
   return useQuery({
@@ -12,12 +13,48 @@ export const useMyRooms = () => {
 };
 
 export const useRoomActivity = (roomId: string) => {
-  return useQuery({
+  const queryResult = useQuery({
     queryKey: ['room-activity', roomId],
     queryFn: () => roomService.getRecentActivity(roomId),
     enabled: !!roomId,
-    refetchInterval: 60000, // Refresh every minute
+    refetchInterval: 60000,
   });
+
+  // Realtime listener for new habit_log inserts — fire notification
+  const lastSeenRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!roomId) return;
+
+    // Initialize seen IDs from current data
+    if (queryResult.data) {
+      queryResult.data.forEach(a => lastSeenRef.current.add(a.id));
+    }
+
+    const checkNewActivity = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Re-fetch and compare
+      const fresh = await roomService.getRecentActivity(roomId);
+      fresh.forEach(activity => {
+        if (!lastSeenRef.current.has(activity.id) && activity.user_id !== user.id) {
+          notificationService.notifyRoomActivity(
+            activity.display_name,
+            activity.habit_name,
+            activity.duration_minutes
+          );
+        }
+        lastSeenRef.current.add(activity.id);
+      });
+    };
+
+    // Poll every 30s for new activity (lighter than full realtime subscription on habit_logs)
+    const interval = setInterval(checkNewActivity, 30000);
+    return () => clearInterval(interval);
+  }, [roomId, queryResult.data]);
+
+  return queryResult;
 };
 
 export const useRoom = (roomId: string) => {
